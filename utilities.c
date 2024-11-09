@@ -92,21 +92,15 @@ char *recv_data(int sockFD) {
     }
 
     bytesReceived = recv(sockFD, recvBuf + dataLen, bufferSize, 0);
-    printf("bytesReceived: %zd\n", bytesReceived);
     if (bytesReceived == -1) {
       perror("recv");
       free(recvBuf);
       return NULL;
     } else if (bytesReceived == 0) {
+      // end of received string.
       break;
     }
     dataLen += bytesReceived;
-
-    // if (recvBuf[bytesReceived] == '\0') {
-    //   // end of the string.
-    //   break;
-    // }
-
   }
   recvBuf[dataLen] = '\0';
 
