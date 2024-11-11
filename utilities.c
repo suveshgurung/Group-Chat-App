@@ -44,19 +44,19 @@ int initial_server_socket_operation(int *serverSocketFD) {
 
   if (*serverSocketFD == -1) {
     perror("socket");
-    return 1;
+    exit(1);
   }
 
   struct sockaddr_in address = create_ipv4_socket_addr("127.0.0.1", 6000);
 
   if (bind(*serverSocketFD, (struct sockaddr *)&address, sizeof(address)) == -1) {
     perror("bind");
-    return 2;
+    exit(2);
   }
 
   if (listen(*serverSocketFD, 0) == -1) {
     perror("listen");
-    return 3;
+    exit(3);
   }
 
   struct sockaddr_in clientSocketAddr;
@@ -64,7 +64,7 @@ int initial_server_socket_operation(int *serverSocketFD) {
   int clientSocketFD = accept(*serverSocketFD, (struct sockaddr *)&address, &clientAddrLen);
   if (clientSocketFD == -1) {
     perror("accept");
-    return 4;
+    exit(4);
   }
 
   return clientSocketFD;
@@ -84,7 +84,7 @@ char *recv_data(int sockFD) {
   while (1) {
     if (dataLen + CHUNK_SIZE >= bufferSize) {
       bufferSize += INITIAL_BUFFER_SIZE;
-      recvBuf = (char *)realloc(recvBuf, bufferSize);
+      recvBuf = (char *)realloc(recvBuf, bufferSize + 1);     // +1 just incase for the null character.
       if (recvBuf == NULL) {
         perror("malloc");
         return NULL;
@@ -96,11 +96,13 @@ char *recv_data(int sockFD) {
       perror("recv");
       free(recvBuf);
       return NULL;
-    } else if (bytesReceived == 0) {
-      // end of received string.
+    } 
+    dataLen += bytesReceived;
+
+    // check for the delimiter character.
+    if (!strncmp(&recvBuf[dataLen - 2], "\r\n", 2)) {
       break;
     }
-    dataLen += bytesReceived;
   }
   recvBuf[dataLen] = '\0';
 
@@ -116,6 +118,7 @@ message input_message() {
   if (input.buffer == NULL) {
     perror("malloc");
     free(input.buffer);
+
     message returnVal = IM_INIT;
     return returnVal;
   }
@@ -133,6 +136,9 @@ message input_message() {
     }
     input.buffer[input.len++] = ch;
   }
+  input.buffer[input.len++] = '\r';
+  input.buffer[input.len++] = '\n';
+  // need to end with a null character. Navaye send() garda last byte lai null le replace gardine raixa. syet.
   input.buffer[input.len] = '\0';
 
   return input;

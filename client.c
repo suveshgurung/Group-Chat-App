@@ -1,5 +1,4 @@
 #include "utilities.h"
-#include <time.h>
 
 int main() {
 
@@ -16,25 +15,16 @@ int main() {
     perror("send");
     return 5;
   }
-  // close the socket to say that sending is done.
-  close(clientSocketFD);
-
-  struct timespec ts;
-  ts.tv_sec = 0;
-  ts.tv_nsec = 1000000;
-  nanosleep(&ts, NULL);
-
-  int newClientSocketFD = initial_client_socket_operation();
 
   char buf[1024];
-  if (recv(newClientSocketFD, buf, 1024, 0) == -1) {
+  if (recv(clientSocketFD, buf, 1024, 0) == -1) {
     perror("recv");
     return 6;
   }
 
   printf("%s\n", buf);
 
-  close(newClientSocketFD);
+  close(clientSocketFD);
   free(input.buffer);
 
   return 0;

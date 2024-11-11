@@ -12,19 +12,13 @@ int main() {
   }
   printf("%s\n", recvBuf);
 
-  close(serverSocketFD);
-  close(clientSocketFD);
-
-  int newServerSocketFD;
-  int newClientSocketFD = initial_server_socket_operation(&newServerSocketFD);
-
   char *sendBuf = "Hello from the server!";
-  if (send(newClientSocketFD, sendBuf, strlen(sendBuf), 0) == -1) {
+  if (send(clientSocketFD, sendBuf, strlen(sendBuf), 0) == -1) {
     perror("send");
     return 6;
   }
 
-  close(newServerSocketFD);
+  close(serverSocketFD);
   close(clientSocketFD);
   free(recvBuf);
 
