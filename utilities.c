@@ -54,7 +54,7 @@ int initial_server_socket_operation(int *serverSocketFD) {
     exit(2);
   }
 
-  if (listen(*serverSocketFD, 0) == -1) {
+  if (listen(*serverSocketFD, 100) == -1) {
     perror("listen");
     exit(3);
   }
