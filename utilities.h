@@ -21,7 +21,7 @@ typedef struct {
 
 struct sockaddr_in create_ipv4_socket_addr(const char *ipAddress, uint16_t port);
 int initial_client_socket_operation();
-int initial_server_socket_operation(int *serverSocketFD);
+struct sockaddr_in initial_server_socket_operation(int *serverSocketFD);
 char *recv_data(int sockFD);
 message input_message();
 

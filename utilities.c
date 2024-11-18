@@ -39,7 +39,7 @@ int initial_client_socket_operation() {
   return socketFD;
 }
 
-int initial_server_socket_operation(int *serverSocketFD) {
+struct sockaddr_in initial_server_socket_operation(int *serverSocketFD) {
   *serverSocketFD = socket(AF_INET, SOCK_STREAM, 0);
 
   if (*serverSocketFD == -1) {
@@ -59,15 +59,7 @@ int initial_server_socket_operation(int *serverSocketFD) {
     exit(3);
   }
 
-  struct sockaddr_in clientSocketAddr;
-  socklen_t clientAddrLen = sizeof(clientSocketAddr);
-  int clientSocketFD = accept(*serverSocketFD, (struct sockaddr *)&address, &clientAddrLen);
-  if (clientSocketFD == -1) {
-    perror("accept");
-    exit(4);
-  }
-
-  return clientSocketFD;
+  return address;
 }
 
 char *recv_data(int sockFD) {
@@ -82,6 +74,7 @@ char *recv_data(int sockFD) {
   }
 
   while (1) {
+    printf("sockFD: %d\n", sockFD);
     if (dataLen + CHUNK_SIZE >= bufferSize) {
       bufferSize += INITIAL_BUFFER_SIZE;
       recvBuf = (char *)realloc(recvBuf, bufferSize + 1);     // +1 just incase for the null character.
