@@ -74,7 +74,6 @@ char *recv_data(int sockFD) {
   }
 
   while (1) {
-    printf("sockFD: %d\n", sockFD);
     if (dataLen + CHUNK_SIZE >= bufferSize) {
       bufferSize += INITIAL_BUFFER_SIZE;
       recvBuf = (char *)realloc(recvBuf, bufferSize + 1);     // +1 just incase for the null character.
@@ -89,7 +88,9 @@ char *recv_data(int sockFD) {
       perror("recv");
       free(recvBuf);
       return NULL;
-    } 
+    } else if (bytesReceived == 0) {      // peer socket has been closed.
+      return "EOF";
+    }
     dataLen += bytesReceived;
 
     // check for the delimiter character.
