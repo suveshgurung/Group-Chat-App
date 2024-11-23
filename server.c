@@ -41,14 +41,13 @@ int main() {
 
     threadIndex++;
   }
-  printf("main to tala aayo\n");
 
   // wait for all threads to terminate.
   for (int i = 0; i < threadIndex; i++) {
     pthread_join(threadId[i], NULL);
   }
 
-  close(serverSocketFD);
+  shutdown(serverSocketFD, SHUT_RDWR);
 
   return 0;
 }
@@ -67,12 +66,11 @@ void *handleClientMessages(void *clientSocketFD) {
       perror("recvBuffer");
       return NULL;
     } else if (!strncmp(recvBuf, "EOF", 3)) {
-      pthread_exit(NULL);
+      break;
     }
 
     printf("%s", recvBuf);
   }
-  printf("thread to tala aayo\n");
 
   close(socketFD);
   free(recvBuf);

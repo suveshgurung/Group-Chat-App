@@ -24,14 +24,6 @@ int main() {
     }
   }
 
-  // char buf[1024];
-  // if (recv(clientSocketFD, buf, 1024, 0) == -1) {
-  //   perror("recv");
-  //   return 6;
-  // }
-  //
-  // printf("%s\n", buf);
-
   close(clientSocketFD);
   free(input.buffer);
 

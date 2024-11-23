@@ -89,7 +89,8 @@ char *recv_data(int sockFD) {
       free(recvBuf);
       return NULL;
     } else if (bytesReceived == 0) {      // peer socket has been closed.
-      return "EOF";
+      strcpy(recvBuf, "EOF");
+      return recvBuf;
     }
     dataLen += bytesReceived;
 
