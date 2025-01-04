@@ -76,8 +76,19 @@ void *handleClientMessages(void *clientSocketFD) {
       break;
     }
     msgReceivedTime = time(NULL);
+    if (msgReceivedTime == -1) {
+      perror("time");
+      return NULL;
+    }
     convertedTime = localtime(&msgReceivedTime);
-    strftime(timeBuffer, TIME_BUFFER_SIZE, "%c", convertedTime);
+    if (convertedTime == NULL) {
+      perror("localtime");
+      return NULL;
+    }
+    if (strftime(timeBuffer, TIME_BUFFER_SIZE, "%c", convertedTime) == 0) {
+      fprintf(stderr, "strftime: Length of string exceeds the buffer size.\n");
+      return NULL;
+    }
 
     printf("%s -> %s", timeBuffer, recvBuf);
   }
