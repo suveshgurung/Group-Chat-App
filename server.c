@@ -63,6 +63,8 @@ void signalHandler(int sig) {
 void *handleClientMessages(void *clientSocketFD) {
   long socketFD = (long) clientSocketFD;
   char *recvBuf;
+  char *clientName;
+  bool firstTimeRunning = true;
   time_t msgReceivedTime;
   struct tm *convertedTime;
   char timeBuffer[TIME_BUFFER_SIZE];
@@ -75,6 +77,18 @@ void *handleClientMessages(void *clientSocketFD) {
     } else if (!strncmp(recvBuf, "EOF", 3)) {
       break;
     }
+
+    if (firstTimeRunning) {
+      size_t nameLen = strlen(recvBuf);
+      clientName = (char *)malloc(nameLen - 1);
+      memcpy(clientName, recvBuf, nameLen - 2);       // -2 to trim off the \r\n in the end.
+      clientName[nameLen - 1] = '\0';
+
+      firstTimeRunning = false;
+      continue;
+    }
+
+    // take the time when the message was sent.
     msgReceivedTime = time(NULL);
     if (msgReceivedTime == -1) {
       perror("time");
@@ -90,11 +104,12 @@ void *handleClientMessages(void *clientSocketFD) {
       return NULL;
     }
 
-    printf("%s -> %s", timeBuffer, recvBuf);
+    printf("%s -> %s : %s", timeBuffer, clientName, recvBuf);
   }
 
   close(socketFD);
   free(recvBuf);
+  free(clientName);
   pthread_exit(NULL);
 }
 

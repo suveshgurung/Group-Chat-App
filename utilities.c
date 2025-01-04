@@ -1,5 +1,7 @@
 #include "utilities.h"
 
+// TODO: need to see why all clients must be ended before the server can be ended.
+
 struct sockaddr_in create_ipv4_socket_addr(const char *ipAddress, uint16_t port) {
   struct sockaddr_in address;
   address.sin_family = AF_INET;
@@ -26,14 +28,14 @@ int initial_client_socket_operation() {
 
   if (socketFD == -1) {
     perror("socket");
-    return 1;
+    exit(1);
   }
 
   struct sockaddr_in address = create_ipv4_socket_addr("127.0.0.1", 6000);
 
   if (connect(socketFD, (struct sockaddr *)&address, sizeof(address)) == -1) {
     perror("connect");
-    return 4;
+    exit(1);
   }
 
   return socketFD;
@@ -106,21 +108,20 @@ char *recv_data(int sockFD) {
 
 message input_message() {
   message input = IM_INIT;
-  size_t size = 1;
+  size_t size = INITIAL_MESSAGE_SIZE;
   int ch;
 
   input.buffer = (char *)malloc(size);
   if (input.buffer == NULL) {
     perror("malloc");
-    free(input.buffer);
 
     message returnVal = IM_INIT;
     return returnVal;
   }
 
   while ((ch = getchar()) != '\n' && (ch != EOF)) {
-    if (input.len + 1 >= size) {
-      size += 1;
+    if (input.len + INITIAL_MESSAGE_SIZE >= size) {
+      size += INITIAL_MESSAGE_SIZE;
       input.buffer = (char *)realloc(input.buffer, size);
       if (input.buffer == NULL) {
         perror("realloc");

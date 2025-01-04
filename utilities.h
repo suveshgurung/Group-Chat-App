@@ -13,6 +13,7 @@
 #define INITIAL_BUFFER_SIZE 1024
 #define CHUNK_SIZE 512
 #define IM_INIT {NULL, 0}     // message initializer.
+#define INITIAL_MESSAGE_SIZE 512
 
 typedef struct {
   char *buffer;
