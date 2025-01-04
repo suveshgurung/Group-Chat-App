@@ -2,8 +2,10 @@
 #include <signal.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define NUM_OF_THREADS 100    // number of users that can connect to the server.
+#define TIME_BUFFER_SIZE 26
 
 typedef struct {
   struct sockaddr_in address;
@@ -61,6 +63,9 @@ void signalHandler(int sig) {
 void *handleClientMessages(void *clientSocketFD) {
   long socketFD = (long) clientSocketFD;
   char *recvBuf;
+  time_t msgReceivedTime;
+  struct tm *convertedTime;
+  char timeBuffer[TIME_BUFFER_SIZE];
 
   while (!shutdownRequested) {
     recvBuf = recv_data(socketFD);
@@ -70,8 +75,11 @@ void *handleClientMessages(void *clientSocketFD) {
     } else if (!strncmp(recvBuf, "EOF", 3)) {
       break;
     }
+    msgReceivedTime = time(NULL);
+    convertedTime = localtime(&msgReceivedTime);
+    strftime(timeBuffer, TIME_BUFFER_SIZE, "%c", convertedTime);
 
-    printf("%s", recvBuf);
+    printf("%s -> %s", timeBuffer, recvBuf);
   }
 
   close(socketFD);
