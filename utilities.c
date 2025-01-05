@@ -1,7 +1,5 @@
 #include "utilities.h"
 
-// TODO: need to see why all clients must be ended before the server can be ended.
-
 struct sockaddr_in create_ipv4_socket_addr(const char *ipAddress, uint16_t port) {
   struct sockaddr_in address;
   address.sin_family = AF_INET;

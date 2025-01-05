@@ -1,5 +1,6 @@
 #include "utilities.h"
 
+// clientName struct initializer.
 #define CN_INIT {NULL, 0}
 
 typedef struct {

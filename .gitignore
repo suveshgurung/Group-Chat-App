@@ -2,3 +2,4 @@ client
 server
 test.c
 test
+*.txt

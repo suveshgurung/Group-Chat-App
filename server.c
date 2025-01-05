@@ -31,12 +31,12 @@ int main() {
   signal(SIGINT, signalHandler);
 
   pthread_t accpetRunThreadId;
-  pthread_create(&accpetRunThreadId, NULL, run_accept_thread, (void *)&server);
+  pthread_create(&accpetRunThreadId, NULL, &run_accept_thread, (void *)&server);
 
   while (!shutdownRequested) {
     if (newClientConnection) {
       // create a new thread to handle the new client.
-      if (pthread_create(&threadId[threadIndex], NULL, handleClientMessages, (void *)clientSocketFDArr[threadIndex])) {
+      if (pthread_create(&threadId[threadIndex], NULL, &handleClientMessages, (void *)clientSocketFDArr[threadIndex])) {
         fprintf(stderr, "error in pthread_create\n");
         return 6;
       }
@@ -78,6 +78,7 @@ void *handleClientMessages(void *clientSocketFD) {
       break;
     }
 
+    // name is sent in the first iteration.
     if (firstTimeRunning) {
       size_t nameLen = strlen(recvBuf);
       clientName = (char *)malloc(nameLen - 1);
@@ -104,7 +105,19 @@ void *handleClientMessages(void *clientSocketFD) {
       return NULL;
     }
 
+    FILE *fp = fopen("server-log.txt", "a");
+    if (fp == NULL) {
+      perror("fopen");
+      exit(1);
+    }
+    fprintf(fp, "%s -> %s : %s", timeBuffer, clientName, recvBuf);
+
     printf("%s -> %s : %s", timeBuffer, clientName, recvBuf);
+    
+    if (fclose(fp)) {
+      perror("fclose");
+      exit(1);
+    }
   }
 
   close(socketFD);
