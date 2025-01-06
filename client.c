@@ -1,4 +1,5 @@
 #include "utilities.h"
+#include <pthread.h>
 
 // clientName struct initializer.
 #define CN_INIT {NULL, 0}
@@ -9,6 +10,8 @@ typedef struct {
 } clientName;
 
 #define NAME_BUFFER_SIZE 100
+
+void *receiveFromServer(void *);
 
 int main() {
 
@@ -49,6 +52,9 @@ int main() {
 
   printf("Enter text to send to the server, type 'exit' to exit\n\n");
   message input;
+
+  pthread_t receiveFromServerThreadID;
+  pthread_create(&receiveFromServerThreadID, NULL, &receiveFromServer, (void *)&clientSocketFD);
   while (1) {
     input = input_message();
     if (input.buffer == NULL) {
@@ -72,4 +78,17 @@ int main() {
   free(client.name);
 
   return 0;
+}
+
+void *receiveFromServer(void *arg) {
+  int clientSocketFD = *((int *)arg);
+
+  while (1) {
+    char *recvBuf = recv_data(clientSocketFD);
+    if (recvBuf == NULL) {
+      perror("recvBuffer");
+      return NULL;
+    }
+    printf("%s", recvBuf);
+  }
 }

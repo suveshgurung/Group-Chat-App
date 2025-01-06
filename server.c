@@ -105,6 +105,7 @@ void *handleClientMessages(void *clientSocketFD) {
       return NULL;
     }
 
+    // log the message to a .txt file.
     FILE *fp = fopen("server-log.txt", "a");
     if (fp == NULL) {
       perror("fopen");
@@ -112,12 +113,28 @@ void *handleClientMessages(void *clientSocketFD) {
     }
     fprintf(fp, "%s -> %s : %s", timeBuffer, clientName, recvBuf);
 
-    printf("%s -> %s : %s", timeBuffer, clientName, recvBuf);
+    int sendBufMaxLen = printf("%s -> %s : %s", timeBuffer, clientName, recvBuf);
+
+    // broadcast the message to all clients.
+    char *sendBuffer = (char *)malloc(sendBufMaxLen);
+    int sendWrittenBytes = snprintf(sendBuffer, sendBufMaxLen, "%s : %s\r\n", clientName, recvBuf);
+    if (sendWrittenBytes < 0) {
+      fprintf(stderr, "snprintf\n");
+      exit(1);
+    }
+    for (int i = 0; i < threadIndex; i++) {
+      if (send(clientSocketFDArr[i], sendBuffer, sendWrittenBytes, 0) == -1) {
+        perror("send");
+        exit(1);
+      }
+    }
     
     if (fclose(fp)) {
       perror("fclose");
       exit(1);
     }
+
+    free(recvBuf);
   }
 
   close(socketFD);
