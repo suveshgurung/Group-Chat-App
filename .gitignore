@@ -3,3 +3,4 @@ server
 test.c
 test
 *.txt
+*.o
