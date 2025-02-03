@@ -51,7 +51,7 @@ int main() {
     pthread_join(threadId[i], NULL);
   }
 
-  shutdown(server.serverSocketFD, SHUT_RDWR);
+  close(server.serverSocketFD);
 
   return 0;
 }
